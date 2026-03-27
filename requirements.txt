@@ -1,0 +1,2 @@
+sqlalchemy==2.0.48
+aiogram==3.26.0

@@ -3,6 +3,10 @@ from sqlalchemy import select
 from db.models import *
 from db.crud.users import get_user_by_id, add_user
 from aiogram import types
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 async def add_message(
         session: AsyncSession,
@@ -13,13 +17,16 @@ async def add_message(
     tg_user_id = tg_msg.from_user.id
     user = await get_user_by_id(tg_user_id, session)
 
+    logger.info(user)
+
     if not user:
         user = UserBase(
             tg_id=tg_user_id,
             username=tg_msg.from_user.username,
             role="user"
         )
-        await add_user(user, session)
+        session.add(user)
+        await session.flush()
 
     message = MessageBase(
         tg_id=tg_msg.message_id,

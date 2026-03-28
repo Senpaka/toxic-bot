@@ -1,8 +1,15 @@
-from sqlalchemy import ScalarResult, select
+from aiogram import types
+from aiogram.types import Message
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Sequence
+from typing import Sequence, Any, Coroutine
+from dotenv import load_dotenv
+import os
 
 from db.models import *
+
+load_dotenv()
+OWNER_ID = os.getenv("OWNER_BOT_ID")
 
 async def add_user(user: UserBase, session: AsyncSession) -> None:
     session.add(user)
@@ -17,7 +24,7 @@ async def update_user(user: UserBase, session: AsyncSession) -> None:
     await session.commit()
 
 async def get_user_by_id(user_id: int, session: AsyncSession) -> UserBase | None:
-    statement = select(UserBase).where(UserBase.id == user_id)
+    statement = select(UserBase).where(UserBase.tg_id == user_id)
     result = await session.execute(statement)
 
     return result.scalar_one_or_none()
@@ -33,3 +40,9 @@ async def get_admin_users(session: AsyncSession) -> Sequence[UserBase]:
     result = await session.execute(statement)
 
     return result.scalars().all()
+
+
+
+
+
+

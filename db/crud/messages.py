@@ -17,7 +17,7 @@ async def add_message(
     tg_user_id = tg_msg.from_user.id
     user = await get_user_by_id(tg_user_id, session)
 
-    logger.info(user)
+    logger.info("Adding message")
 
     if not user:
         user = UserBase(
@@ -28,11 +28,16 @@ async def add_message(
         session.add(user)
         await session.flush()
 
+    photo_id = None
+    if tg_msg.photo:
+        photo_id = tg_msg.photo[-1].file_id
+
     message = MessageBase(
         tg_id=tg_msg.message_id,
         chat_id=tg_msg.chat.id,
         user_id=tg_user_id,
-        content=tg_msg.text or "",
+        content=tg_msg.text or tg_msg.caption or "",
+        file_id=photo_id,
         created_at=tg_msg.date.replace(tzinfo=None),
         model_label=model_label
     )

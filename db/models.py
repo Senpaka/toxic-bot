@@ -7,6 +7,9 @@ class Base(DeclarativeBase):
     pass
 
 class UserBase(Base):
+    """
+    Модель пользвователя для представления бд таблицы в виде объекта
+    """
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -15,6 +18,9 @@ class UserBase(Base):
     role: Mapped[str] = mapped_column(String(15), default="user")
 
 class MessageBase(Base):
+    """
+    Модель сообщения для представления бд таблицы в виде объекта
+    """
     __tablename__ = 'messages'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

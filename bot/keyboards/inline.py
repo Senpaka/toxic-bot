@@ -6,6 +6,10 @@ from bot.utils.callbacks import MarkAction
 
 
 def get_admin_kb() -> InlineKeyboardMarkup:
+    """
+    Метод для получения инлайн клавиатуры панели админов
+    :return: клавиатура
+    """
     builder = InlineKeyboardBuilder()
 
     builder.button(
@@ -16,6 +20,11 @@ def get_admin_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_mark_kb(msg_id: int) -> InlineKeyboardMarkup:
+    """
+    Метод для получения вариантов разметки
+    :param msg_id: айди сообщения
+    :return: клавиатура
+    """
     builder = InlineKeyboardBuilder()
 
     builder.button(
@@ -37,6 +46,10 @@ def get_mark_kb(msg_id: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def next_mark_kb() -> InlineKeyboardMarkup:
+    """
+    Метод для получения следущего сообщения для разметки
+    :return: Клавиатура
+    """
     builder = InlineKeyboardBuilder()
 
     builder.button(

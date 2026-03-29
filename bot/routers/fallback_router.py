@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message
 
-from db.engine import async_session
+from db.database import async_session
 from db.crud.messages import add_message
 
 import logging
@@ -13,6 +13,10 @@ router = Router()
 
 @router.message()
 async def echo_handler(message: Message):
+    """
+    Метод для сохранения сообщений в бд
+    :param message: сообщение
+    """
     async with async_session() as session:
         try:
             db_msg = await add_message(session, message)

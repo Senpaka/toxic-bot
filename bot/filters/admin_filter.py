@@ -2,12 +2,17 @@ from aiogram import types
 from aiogram.filters import BaseFilter
 from sqlalchemy import select
 
-from db.engine import async_session
+from db.database import async_session
 from db.models import UserBase
 
 
 class AdminFilter(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
+        """
+        Фильтр для проверки прав доступа уровня админ и выше
+        :param message: сообщение
+        :return: метка true/false
+        """
         async with async_session() as session:
             statement = select(UserBase).where(UserBase.tg_id == message.from_user.id)
             result = await session.execute(statement)

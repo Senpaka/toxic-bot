@@ -5,9 +5,9 @@ from aiogram.types import CallbackQuery
 
 from sqlalchemy import select, update, func
 
-from db.engine import async_session
+from db.database import async_session
 from db.models import UserBase, MessageBase
-from bot.filtters.admin_filter import AdminFilter
+from bot.filters.admin_filter import AdminFilter
 from bot.utils.callbacks import MarkAction
 
 import logging
@@ -21,6 +21,10 @@ router = Router()
 
 @router.callback_query(lambda c: c.data == "get_message_to_mark", AdminFilter())
 async def get_message_to_mark(callback: CallbackQuery):
+    """
+    Метод для показа сообщения для разметки
+    :param callback: Колбэк
+    """
     logger.info(f"Getting message to mark: {callback.data}")
     async with async_session() as session:
         logger.info("Finding random unmarked message")
@@ -67,6 +71,11 @@ async def get_message_to_mark(callback: CallbackQuery):
 
 @router.callback_query(MarkAction.filter())
 async def set_mark(callback: CallbackQuery, callback_data: MarkAction):
+    """
+    Метод установки отметки
+    :param callback: колбэк
+    :param callback_data: данные с колбэка
+    """
     message_id = callback_data.message_id
     label = callback_data.label
 
@@ -109,6 +118,10 @@ async def set_mark(callback: CallbackQuery, callback_data: MarkAction):
 
 @router.callback_query(lambda c: c.data == "stop_marking")
 async def stop_marking(callback: CallbackQuery):
+    """
+    Метод для прекращения пометки
+    :param callback: колбэк
+    """
     await callback.message.edit_reply_markup(reply_markup=None)
     await callback.message.answer("Работа завершена. Спасибо!")
     await callback.answer()

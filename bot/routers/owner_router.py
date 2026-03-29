@@ -5,9 +5,9 @@ from aiogram.types import Message
 
 from sqlalchemy import select, update
 
-from db.engine import async_session
+from db.database import async_session
 from db.models import UserBase
-from bot.filtters.admin_filter import AdminFilter
+from bot.filters.admin_filter import AdminFilter
 
 import logging
 
@@ -18,6 +18,11 @@ router = Router()
 
 @router.message(Command("set_role"), AdminFilter())
 async def set_user_role(message: Message, command: CommandObject):
+    """
+    Метод для установки роли пользователя (может использовать только владелец)
+    :param message: Сообщение
+    :param command: Роль
+    """
     role = command.args
     logger.info(f"Setting role: {role}")
 

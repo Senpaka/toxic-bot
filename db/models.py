@@ -22,6 +22,7 @@ class MessageBase(Base):
     chat_id: Mapped[int] = mapped_column(BigInteger)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.tg_id"))
     content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    file_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
     model_label: Mapped[str | None] = mapped_column(String(10), nullable=True)

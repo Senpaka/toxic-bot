@@ -29,13 +29,14 @@ async def add_message(
         await session.flush()
 
     photo_id = None
+
     if tg_msg.photo:
         photo_id = tg_msg.photo[-1].file_id
 
     message = MessageBase(
         tg_id=tg_msg.message_id,
         chat_id=tg_msg.chat.id,
-        user_id=tg_user_id,
+        user_id=user.id,
         content=tg_msg.text or tg_msg.caption or "",
         file_id=photo_id,
         created_at=tg_msg.date.replace(tzinfo=None),
@@ -51,7 +52,7 @@ async def add_message(
 
 async def get_message(message_id: int, session: AsyncSession) -> MessageBase:
 
-    statement = select(MessageBase).where(MessageBase.id == message_id)
+    statement = select(MessageBase).where(MessageBase.tg_id == message_id)
     result = await session.execute(statement)
 
     return result.scalar_one_or_none()

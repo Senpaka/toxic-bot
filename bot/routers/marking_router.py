@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 
@@ -6,9 +6,10 @@ from aiogram.types import CallbackQuery
 from sqlalchemy import select, update, func
 
 from db.database import async_session
-from db.models import UserBase, MessageBase
+from db.models import UserBase, MessageBase, UserReaction
 from bot.filters.admin_filter import AdminFilter
 from bot.utils.callbacks import MarkAction
+from db.crud.user_reactions import get_list_of_message_reactions
 
 import logging
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 router = Router()
 
-@router.callback_query(lambda c: c.data == "get_message_to_mark", AdminFilter())
+@router.callback_query(F.data == "get_message_to_mark", AdminFilter())
 async def get_message_to_mark(callback: CallbackQuery):
     """
     Метод для показа сообщения для разметки
@@ -41,25 +42,41 @@ async def get_message_to_mark(callback: CallbackQuery):
 
             statement = (
                 select(UserBase)
-                .where(UserBase.tg_id == message.user_id)
+                .where(UserBase.id == message.user_id)
             )
+
             result = await session.execute(statement)
             user = result.scalar_one_or_none()
+
+
+            reactions = await get_list_of_message_reactions(session, message.id)
+
+            if reactions:
+                reactions_text = "\n" + "\n".join([f"{r.get("emoji")}: {r.get("count")}" for r in reactions])
+            else:
+                reactions_text = " отсутствуют"
+
+            caption = (
+                f"<b>Сообщение для разметки:</b>\n"
+                f"👤 Отправил: @{user.username}\n"
+                f"📝 Контент: <i>{message.content or 'нет текста'}</i>\n"
+                f"📊 Реакции:{reactions_text}"
+            )
+
             await callback.message.delete()
+
+            params = {
+                "caption" if message.file_id else "text": caption,
+                "reply_markup": get_mark_kb(message.id),
+                "parse_mode": ParseMode.HTML
+            }
 
             if message.file_id:
                 logger.info(f"Send message with photo")
-                await callback.message.answer_photo(
-                    photo=message.file_id,
-                    caption=f"Сообщение для разметки:\nОтправил: {user.username}\nСообщение: {message.content}",
-                    reply_markup=get_mark_kb(message.id)
-                )
+                await callback.message.answer_photo(photo=message.file_id, **params)
             else:
                 logger.info(f"Send message")
-                await callback.message.answer(
-                    text=f"Сообщение для разметки:\nОтправил: {user.username}\nСообщение: {message.content}",
-                    reply_markup=get_mark_kb(message.id)
-                )
+                await callback.message.answer(**params)
 
         else:
             logger.info(f"Message is end")

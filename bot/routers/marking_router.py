@@ -41,6 +41,7 @@ async def get_message_to_mark(callback: CallbackQuery):
             )
             result = await session.execute(statement)
             user = result.scalar_one_or_none()
+            await callback.message.delete()
 
             if message.file_id:
                 logger.info(f"Send message with photo")

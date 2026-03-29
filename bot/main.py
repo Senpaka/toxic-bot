@@ -1,12 +1,8 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message
 from dotenv import load_dotenv
 import os
-
-from db.engine import async_session
-from db.crud.messages import add_message
 
 import logging
 
